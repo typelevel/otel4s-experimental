@@ -16,10 +16,12 @@ ThisBuild / developers := List(
 )
 
 val Versions = new {
-  val Scala213 = "2.13.14"
-  val Scala3   = "3.3.3"
-  val Otel4s   = "0.8.0"
-  val Munit    = "1.0.0"
+  val Scala213        = "2.13.14"
+  val Scala3          = "3.3.3"
+  val Otel4s          = "0.8.0"
+  val Munit           = "1.0.0"
+  val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
+  val MUnitCatsEffect = "2.0.0"
 }
 
 ThisBuild / crossScalaVersions := Seq(Versions.Scala213, Versions.Scala3)
@@ -27,6 +29,21 @@ ThisBuild / scalaVersion       := Versions.Scala213 // the default Scala
 
 lazy val root = tlCrossRootProject
   .settings(name := "otel4s-experimental")
+  .aggregate(metrics)
+
+lazy val metrics = crossProject(JVMPlatform)
+  .crossType(CrossType.Full)
+  .in(file("modules/metrics"))
+  .settings(munitDependencies)
+  .settings(
+    name        := "otel4s-experimental-metrics",
+    Test / fork := true,
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
+      "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
+      "org.typelevel" %%% "otel4s-sdk-metrics-testkit" % Versions.Otel4s % Test
+    )
+  )
 
 lazy val scalaReflectDependency = Def.settings(
   libraryDependencies ++= {
@@ -37,6 +54,8 @@ lazy val scalaReflectDependency = Def.settings(
 
 lazy val munitDependencies = Def.settings(
   libraryDependencies ++= Seq(
-    "org.scalameta" %%% "munit" % Versions.Munit % Test
+    "org.scalameta" %%% "munit"             % Versions.Munit           % Test,
+    "org.scalameta" %%% "munit-scalacheck"  % Versions.MUnitScalaCheck % Test,
+    "org.typelevel" %%% "munit-cats-effect" % Versions.MUnitCatsEffect % Test
   )
 )
