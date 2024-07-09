@@ -12,7 +12,7 @@
 * Provide access to the unstable functionality without breaking the `otel4s`
 * Some features may be upstreamed to the `otel4s` eventually
 
-## Getting started
+## Metrics - getting started
 
 Add the `otel4s-experimental-metrics` dependency to the `build.sbt`:
 ```scala
@@ -41,6 +41,50 @@ object Main extends IOApp.Simple {
 ```
 
 The metrics can be visualized in Grafana using this [dashboard][grafana-ce-dashboard].
+
+## Trace - getting started
+
+Add the `otel4s-experimental-trace` dependency to the `build.sbt`:
+```scala
+libraryDependencies ++= Seq(
+  "org.typelevel" %% "otel4s-experimental-trace" % "<version>"
+)
+```
+
+### 1) `@span` annotation
+
+The body of a method annotated with `@span` will be wrapped into a span:
+```scala
+import org.typelevel.otel4s.experimental.{attribute, trace}
+
+@span
+def findUser(
+  @attribute userId: Long, 
+  @attribute("user.hash") hash: String
+): F[User] = ???
+
+// expands into
+
+def findUser(
+    userId: Long, 
+    hash: String
+): F[User] = 
+  Tracer[F].span(
+    "findUser", 
+    Attribute("userId", userId), Attribute("user.hash", hash)
+  ).surround(???)
+```
+
+The macro works with variables too:
+```scala
+@span("custom_name")
+val findUser: IO[User] = ???
+
+// expands into
+
+val findUser: IO[User] = 
+  Tracer[IO].span("custom_name").surround(???)
+```
 
 [otel4s]: https://github.com/typelevel/otel4s
 [grafana-ce-dashboard]: https://grafana.com/grafana/dashboards/21487-cats-effect-runtime-metrics/

@@ -29,7 +29,7 @@ ThisBuild / scalaVersion       := Versions.Scala213 // the default Scala
 
 lazy val root = tlCrossRootProject
   .settings(name := "otel4s-experimental")
-  .aggregate(metrics)
+  .aggregate(metrics, trace)
 
 lazy val metrics = crossProject(JVMPlatform)
   .crossType(CrossType.Full)
@@ -40,9 +40,23 @@ lazy val metrics = crossProject(JVMPlatform)
     Test / fork := true,
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
-      "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
       "org.typelevel" %%% "otel4s-sdk-metrics-testkit" % Versions.Otel4s % Test
     )
+  )
+
+lazy val trace = crossProject(JVMPlatform, JSPlatform, NativePlatform)
+  .crossType(CrossType.Pure)
+  .in(file("modules/trace"))
+  .settings(munitDependencies)
+  .settings(scalaReflectDependency)
+  .settings(
+    name := "otel4s-experimental-trace",
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "otel4s-core-trace" % Versions.Otel4s
+    ),
+    scalacOptions ++= {
+      if (tlIsScala3.value) Nil else Seq("-Ymacro-annotations")
+    }
   )
 
 lazy val scalaReflectDependency = Def.settings(
