@@ -1,7 +1,7 @@
 # otel4s-experimental
 
 ![Typelevel Organization Project](https://img.shields.io/badge/typelevel-organization%20project-FF6169.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental_2.13)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13)
 
 > [!WARNING]  
 > The `otel4s-experimental` project provides **no binary compatibility guarantees** between releases. 
