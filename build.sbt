@@ -40,7 +40,6 @@ lazy val metrics = crossProject(JVMPlatform)
     Test / fork := true,
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
-      "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
       "org.typelevel" %%% "otel4s-sdk-metrics-testkit" % Versions.Otel4s % Test
     )
   )
