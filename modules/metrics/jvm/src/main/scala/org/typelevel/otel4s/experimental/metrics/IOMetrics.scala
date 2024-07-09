@@ -35,6 +35,23 @@ import scala.jdk.CollectionConverters._
 
 object IOMetrics {
 
+  /** Registers the following collectors:
+    *   - runtime compute metrics
+    *   - runtime local queue metrics
+    *   - CPU starvation
+    *
+    * @param attributes
+    *   the attributes to attach to the metrics
+    */
+  def register[F[_]: Sync: Meter: Console](
+      attributes: Attributes = Attributes.empty
+  ): Resource[F, Unit] =
+    for {
+      _ <- registerComputeMetrics(attributes)
+      _ <- registerCpuStarvationMetrics(attributes)
+      _ <- registerLocalQueueMetrics(attributes)
+    } yield ()
+
   /** Registers the runtime compute metrics:
     *   - `cats.effect.runtime.compute.thread.count`
     *   - `cats.effect.runtime.compute.thread.active.count`
@@ -67,12 +84,7 @@ object IOMetrics {
     *   - `cats.effect.runtime.local.queue.fiber.spillover.count`
     *   - `cats.effect.runtime.local.queue.fiber.steal.attempt.count`
     *   - `cats.effect.runtime.local.queue.fiber.stolen.count`
-    *   - `cats.effect.runtime.local.queue.fiber.total.count`
-    *   - `cats.effect.runtime.local.queue.head.index`
-    *   - `cats.effect.runtime.local.queue.tag.head.real`
-    *   - `cats.effect.runtime.local.queue.tag.head.steal`
-    *   - `cats.effect.runtime.local.queue.tag.tail`
-    *   - `cats.effect.runtime.local.queue.tail.index`
+    *   - `cats.effect.runtime.local.queue.fiber.count`
     *
     * Built-in attributes:
     *   - `hash` - the hash of the work-stealing thread pool the queue is used by
@@ -145,7 +157,7 @@ object IOMetrics {
       Meter[F]
         .observableGauge[Long](s"$prefix.thread.blocked.count")
         .withDescription(
-          "The number of worker thread instances which are currently blocked due to running blocking actions on the compute thread pool."
+          "The number of worker thread instances that are currently blocked due to running blocking actions on the compute thread pool."
         )
         .withUnit("{thread}")
         .createObserver,
@@ -183,75 +195,36 @@ object IOMetrics {
   ): Resource[F, Unit] = {
     val prefix = "cats.effect.runtime.local.queue"
 
-    for {
-      fiberEnqueued <- Meter[F]
+    Meter[F].batchCallback.of(
+      Meter[F]
         .observableUpDownCounter[Long](s"$prefix.fiber.enqueued.count")
         .withDescription("The number of enqueued fibers.")
         .withUnit("{fiber}")
-        .createObserver
-        .toResource
-
-      fiberTotal <- Meter[F]
-        .observableCounter[Long](s"$prefix.fiber.total.count")
+        .createObserver,
+      Meter[F]
+        .observableCounter[Long](s"$prefix.fiber.count")
         .withDescription(
           "The total number of fibers enqueued during the lifetime of the local queue."
         )
         .withUnit("{fiber}")
-        .createObserver
-        .toResource
-
-      fiberSpillover <- Meter[F]
+        .createObserver,
+      Meter[F]
         .observableCounter[Long](s"$prefix.fiber.spillover.count")
         .withDescription("The total number of fibers spilt over to the external queue.")
         .withUnit("{fiber}")
-        .createObserver
-        .toResource
-
-      stealAttemptCount <- Meter[F]
+        .createObserver,
+      Meter[F]
         .observableCounter[Long](s"$prefix.fiber.steal.attempt.count")
         .withDescription("The total number of successful steal attempts by other worker threads.")
         .withUnit("{fiber}")
-        .createObserver
-        .toResource
-
-      stolenCount <- Meter[F]
+        .createObserver,
+      Meter[F]
         .observableCounter[Long](s"$prefix.fiber.stolen.count")
         .withDescription("The total number of stolen fibers by other worker threads.")
         .withUnit("{fiber}")
         .createObserver
-        .toResource
-
-      headIndex <- Meter[F]
-        .observableGauge[Long](s"$prefix.head.index")
-        .withDescription("The index representing the head of the queue.")
-        .createObserver
-        .toResource
-
-      headTagReal <- Meter[F]
-        .observableGauge[Long](s"$prefix.head.tag.real")
-        .withDescription("The 'real' value of the head of the local queue.")
-        .createObserver
-        .toResource
-
-      headTagSteal <- Meter[F]
-        .observableGauge[Long](s"$prefix.head.tag.steal")
-        .withDescription("The 'steal' tag of the head of the local queue.")
-        .createObserver
-        .toResource
-
-      tailIndex <- Meter[F]
-        .observableGauge[Long](s"$prefix.tail.index")
-        .withDescription("The index representing the tail of the queue.")
-        .createObserver
-        .toResource
-
-      tailTag <- Meter[F]
-        .observableGauge[Long](s"$prefix.tail.tag")
-        .withDescription("The 'tail' tag of the tail of the local queue.")
-        .createObserver
-        .toResource
-
-      callback = queues.traverse_ { queue =>
+    ) { (fiberEnqueued, fiberTotal, fiberSpillover, stealAttemptCount, stolenCount) =>
+      queues.traverse_ { queue =>
         val attributes = Attributes(
           Attribute("hash", queue.hash),
           Attribute("idx", queue.idx)
@@ -260,31 +233,13 @@ object IOMetrics {
         for {
           snapshot <- Sync[F].delay(server.getAttributes(queue.mbean, MBeans.LocalQueue.Attributes))
           _ <- fiberEnqueued.record(MBeans.getValue[Int](snapshot, 0), attributes)
-          _ <- headIndex.record(MBeans.getValue[Int](snapshot, 1), attributes)
-          _ <- tailIndex.record(MBeans.getValue[Int](snapshot, 2), attributes)
-          _ <- fiberTotal.record(MBeans.getValue[Long](snapshot, 3), attributes)
-          _ <- fiberSpillover.record(MBeans.getValue[Long](snapshot, 4), attributes)
-          _ <- stealAttemptCount.record(MBeans.getValue[Long](snapshot, 5), attributes)
-          _ <- stolenCount.record(MBeans.getValue[Long](snapshot, 6), attributes)
-          _ <- headTagReal.record(MBeans.getValue[Int](snapshot, 7), attributes)
-          _ <- headTagSteal.record(MBeans.getValue[Int](snapshot, 8), attributes)
-          _ <- tailTag.record(MBeans.getValue[Int](snapshot, 9), attributes)
+          _ <- fiberTotal.record(MBeans.getValue[Long](snapshot, 1), attributes)
+          _ <- fiberSpillover.record(MBeans.getValue[Long](snapshot, 2), attributes)
+          _ <- stealAttemptCount.record(MBeans.getValue[Long](snapshot, 3), attributes)
+          _ <- stolenCount.record(MBeans.getValue[Long](snapshot, 4), attributes)
         } yield ()
       }
-      _ <- Meter[F].batchCallback(
-        callback,
-        fiberEnqueued,
-        headIndex,
-        tailIndex,
-        fiberTotal,
-        fiberSpillover,
-        stealAttemptCount,
-        stolenCount,
-        headTagReal,
-        headTagSteal,
-        tailTag
-      )
-    } yield ()
+    }
   }
 
   private def cpuStarvationMetrics[F[_]: Sync: Meter](
@@ -352,15 +307,10 @@ object IOMetrics {
       val Name = new ObjectName("cats.effect.unsafe.metrics:type=LocalQueueSampler-*")
       val Attributes: Array[String] = Array(
         "FiberCount",
-        "HeadIndex",
-        "TailIndex",
         "TotalFiberCount",
         "TotalSpilloverCount",
         "SuccessfulStealAttemptCount",
-        "StolenFiberCount",
-        "RealHeadTag",
-        "StealHeadTag",
-        "TailTag"
+        "StolenFiberCount"
       )
     }
 
