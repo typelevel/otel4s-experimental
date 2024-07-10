@@ -47,7 +47,7 @@ The metrics can be visualized in Grafana using this [dashboard][grafana-ce-dashb
 Add the `otel4s-experimental-trace` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "otel4s-experimental-trace" % "<version>"
+  "org.typelevel" %%% "otel4s-experimental-trace" % "<version>"
 )
 ```
 
@@ -55,7 +55,7 @@ libraryDependencies ++= Seq(
 
 The body of a method annotated with `@span` will be wrapped into a span:
 ```scala
-import org.typelevel.otel4s.experimental.{attribute, trace}
+import org.typelevel.otel4s.experimental.{attribute, span}
 
 @span
 def findUser(
