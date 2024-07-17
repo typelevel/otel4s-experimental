@@ -243,5 +243,5 @@ jobs:
       - name: Submit Dependencies
         uses: scalacenter/sbt-dependency-submission@v2
         with:
-          modules-ignore: otel4s-experimental_2.13 otel4s-experimental_3 docs_2.13 docs_3 otel4s-experimental_2.13 otel4s-experimental_3 otel4s-experimental_2.13 otel4s-experimental_3
+          modules-ignore: examples_2.13 examples_3 otel4s-experimental_2.13 otel4s-experimental_3 docs_2.13 docs_3 otel4s-experimental_2.13 otel4s-experimental_3 otel4s-experimental_2.13 otel4s-experimental_3
           configs-ignore: test scala-tool scala-doc-tool test-internal

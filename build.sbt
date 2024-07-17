@@ -26,7 +26,7 @@ ThisBuild / githubWorkflowBuildPostamble ++= Seq(
 val Versions = new {
   val Scala213        = "2.13.14"
   val Scala3          = "3.3.3"
-  val Otel4s          = "0.8.0"
+  val Otel4s          = "0.8.1"
   val Munit           = "1.0.0"
   val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
   val MUnitCatsEffect = "2.0.0"
@@ -37,7 +37,7 @@ ThisBuild / scalaVersion       := Versions.Scala213 // the default Scala
 
 lazy val root = tlCrossRootProject
   .settings(name := "otel4s-experimental")
-  .aggregate(metrics, trace)
+  .aggregate(metrics, trace, examples)
 
 lazy val metrics = crossProject(JVMPlatform)
   .crossType(CrossType.Full)
@@ -66,6 +66,22 @@ lazy val trace = crossProject(JVMPlatform, JSPlatform, NativePlatform)
       if (tlIsScala3.value) Nil else Seq("-Ymacro-annotations")
     }
   )
+
+lazy val examples = project
+  .in(file("modules/examples"))
+  .enablePlugins(NoPublishPlugin)
+  .settings(
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "otel4s-sdk"          % Versions.Otel4s,
+      "org.typelevel" %%% "otel4s-sdk-exporter" % Versions.Otel4s
+    ),
+    javaOptions += "-Dotel.service.name=ce-runtime",
+    javaOptions += "-Dotel.exporter.otlp.protocol=http/protobuf",
+    javaOptions += "-Dotel.exporter.otlp.endpoint=http://localhost:4318",
+    javaOptions += "-Dotel.metric.export.interval=15s",
+    run / fork := true,
+  )
+  .dependsOn(metrics.jvm)
 
 lazy val docs = project
   .in(file("modules/docs"))
