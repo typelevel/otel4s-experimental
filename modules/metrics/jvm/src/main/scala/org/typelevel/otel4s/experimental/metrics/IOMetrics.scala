@@ -157,7 +157,7 @@ object IOMetrics {
       Meter[F]
         .observableGauge[Long](s"$prefix.thread.blocked.count")
         .withDescription(
-          "The number of worker thread instances that are currently blocked due to running blocking actions on the compute thread pool."
+          "The number of worker thread instances that can run blocking actions on the compute thread pool."
         )
         .withUnit("{thread}")
         .createObserver,
