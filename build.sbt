@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion    := "0.1"
+ThisBuild / tlBaseVersion    := "0.2"
 ThisBuild / organization     := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / licenses         := Seq(License.Apache2)
