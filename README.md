@@ -68,13 +68,9 @@ object Main extends IOApp.Simple {
   def run: IO[Unit] =
     OtelJava.autoConfigured[IO]().use { otel4s =>
       otel4s.meterProvider.get("service.meter").flatMap { implicit meter =>
-        val attributes = Attributes(
-          Attribute("queue.type", "unbounded"),
-          Attribute("queue.name", "auth events")
-        )
+        val attributes = Attributes(Attribute("queue.name", "auth events"))
         for {
-          source <- Queue.unbounded[IO, String]
-          queue <- InstrumentedQueue(source, attributes = attributes)
+          queue <- InstrumentedQueue.unbounded[IO, String](attributes = attributes)
           // use the instrumented queue
         } yield ()
       }

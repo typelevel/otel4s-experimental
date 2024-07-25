@@ -16,16 +16,149 @@
 
 package org.typelevel.otel4s.experimental.metrics
 
+import cats.effect.Concurrent
 import cats.effect.MonadCancelThrow
 import cats.effect.std.Queue
 import cats.syntax.applicative._
 import cats.syntax.apply._
 import cats.syntax.flatMap._
 import cats.syntax.functor._
+import org.typelevel.otel4s.Attribute
 import org.typelevel.otel4s.Attributes
 import org.typelevel.otel4s.metrics.Meter
 
 object InstrumentedQueue {
+
+  /** Creates an unbounded instrumented queue.
+    *
+    * The provided metrics:
+    *   - `cats.effect.std.queue.size` - the current number of the elements in the queue
+    *   - `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
+    *   - `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
+    *   - `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
+    *
+    * @param prefix
+    *   the prefix to use with the metrics
+    *
+    * @param attributes
+    *   the additional attributes to add to the metrics
+    */
+  def unbounded[F[_]: Concurrent: Meter, A](
+      prefix: String = "cats.effect.std.queue",
+      attributes: Attributes = Attributes.empty
+  ): F[Queue[F, A]] = {
+    val attrs = Attributes(Attribute("queue.type", "unbounded")) ++ attributes
+    Queue.unbounded[F, A].flatMap(q => instrument(q, prefix, attrs))
+  }
+
+  /** Creates a bounded instrumented queue with the given capacity.
+    *
+    * The provided metrics:
+    *   - `cats.effect.std.queue.size` - the current number of the elements in the queue
+    *   - `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
+    *   - `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
+    *   - `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
+    *
+    * @param capacity
+    *   the capacity of the queue
+    *
+    * @param prefix
+    *   the prefix to use with the metrics
+    *
+    * @param attributes
+    *   the additional attributes to add to the metrics
+    */
+  def bounded[F[_]: Concurrent: Meter, A](
+      capacity: Int,
+      prefix: String = "cats.effect.std.queue",
+      attributes: Attributes = Attributes.empty
+  ): F[Queue[F, A]] = {
+    val attrs = Attributes(
+      Attribute("queue.type", "bounded"),
+      Attribute("queue.capacity", capacity.toLong)
+    ) ++ attributes
+    Queue.bounded[F, A](capacity).flatMap(q => instrument(q, prefix, attrs))
+  }
+
+  /** Creates a dropping instrumented queue with the given capacity.
+    *
+    * The provided metrics:
+    *   - `cats.effect.std.queue.size` - the current number of the elements in the queue
+    *   - `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
+    *   - `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
+    *   - `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
+    *
+    * @param capacity
+    *   the capacity of the queue
+    *
+    * @param prefix
+    *   the prefix to use with the metrics
+    *
+    * @param attributes
+    *   the additional attributes to add to the metrics
+    */
+  def dropping[F[_]: Concurrent: Meter, A](
+      capacity: Int,
+      prefix: String = "cats.effect.std.queue",
+      attributes: Attributes = Attributes.empty
+  ): F[Queue[F, A]] = {
+    val attrs = Attributes(
+      Attribute("queue.type", "dropping"),
+      Attribute("queue.capacity", capacity.toLong)
+    ) ++ attributes
+    Queue.dropping[F, A](capacity).flatMap(q => instrument(q, prefix, attrs))
+  }
+
+  /** Creates an instrumented circular buffer with the given capacity.
+    *
+    * The provided metrics:
+    *   - `cats.effect.std.queue.size` - the current number of the elements in the queue
+    *   - `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
+    *   - `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
+    *   - `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
+    *
+    * @param capacity
+    *   the capacity of the circular buffer
+    *
+    * @param prefix
+    *   the prefix to use with the metrics
+    *
+    * @param attributes
+    *   the additional attributes to add to the metrics
+    */
+  def circularBuffer[F[_]: Concurrent: Meter, A](
+      capacity: Int,
+      prefix: String = "cats.effect.std.queue",
+      attributes: Attributes = Attributes.empty
+  ): F[Queue[F, A]] = {
+    val attrs = Attributes(
+      Attribute("queue.type", "circularBuffer"),
+      Attribute("queue.capacity", capacity.toLong)
+    ) ++ attributes
+    Queue.circularBuffer[F, A](capacity).flatMap(q => instrument(q, prefix, attrs))
+  }
+
+  /** Creates an instrumented synchronous queue with the given capacity.
+    *
+    * The provided metrics:
+    *   - `cats.effect.std.queue.size` - the current number of the elements in the queue
+    *   - `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
+    *   - `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
+    *   - `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
+    *
+    * @param prefix
+    *   the prefix to use with the metrics
+    *
+    * @param attributes
+    *   the additional attributes to add to the metrics
+    */
+  def synchronous[F[_]: Concurrent: Meter, A](
+      prefix: String = "cats.effect.std.queue",
+      attributes: Attributes = Attributes.empty
+  ): F[Queue[F, A]] = {
+    val attrs = Attributes(Attribute("queue.type", "synchronous")) ++ attributes
+    Queue.synchronous[F, A].flatMap(q => instrument(q, prefix, attrs))
+  }
 
   /** Instruments the given queue.
     *
@@ -55,12 +188,12 @@ object InstrumentedQueue {
     *   the prefix to use with the metrics
     *
     * @param attributes
-    *   the attributes to add to the
+    *   the attributes to add to the metrics
     *
     * @param queue
     *   the queue to instrument
     */
-  def apply[F[_]: MonadCancelThrow: Meter, A](
+  def instrument[F[_]: MonadCancelThrow: Meter, A](
       queue: Queue[F, A],
       prefix: String = "cats.effect.std.queue",
       attributes: Attributes = Attributes.empty
