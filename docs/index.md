@@ -17,13 +17,13 @@
 Add the `otel4s-experimental-metrics` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "otel4s-experimental-metrics" % "0.2.0"
+  "org.typelevel" %% "otel4s-experimental-metrics" % "@VERSION@"
 )
 ```
 
 ### 1) `IOMetrics` - cats-effect runtime metrics
 
-```scala
+```scala mdoc:silent
 import cats.effect.{IO, IOApp}
 import org.typelevel.otel4s.experimental.metrics._
 import org.typelevel.otel4s.oteljava.OtelJava
@@ -47,14 +47,14 @@ The metrics can be visualized in Grafana using this [dashboard][grafana-ce-dashb
 Add the `otel4s-experimental-trace` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %%% "otel4s-experimental-trace" % "0.2.0"
+  "org.typelevel" %%% "otel4s-experimental-trace" % "@VERSION@"
 )
 ```
 
 ### 1) `@span` annotation
 
 The body of a method annotated with `@span` will be wrapped into a span:
-```scala
+```scala mdoc:silent
 import org.typelevel.otel4s.trace.Tracer
 import org.typelevel.otel4s.experimental.trace.{attribute, span}
 
@@ -84,7 +84,7 @@ class Service[F[_]: Tracer] {
 ```
 
 The macro works with variables too:
-```scala
+```scala mdoc:compile-only
 implicit val tracer: Tracer[IO] = ???
 
 @span("custom_name")
