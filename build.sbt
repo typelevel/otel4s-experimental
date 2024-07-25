@@ -15,6 +15,14 @@ ThisBuild / developers := List(
   tlGitHubDev("iRevive", "Maksym Ochenashko")
 )
 
+ThisBuild / githubWorkflowBuildPostamble ++= Seq(
+  WorkflowStep.Sbt(
+    List("doc", "docs/mdoc"),
+    name = Some("Verify docs"),
+    cond = Some("matrix.project == 'rootJVM' && matrix.scala == '2.13'")
+  )
+)
+
 val Versions = new {
   val Scala213        = "2.13.14"
   val Scala3          = "3.3.3"
@@ -57,6 +65,23 @@ lazy val trace = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     scalacOptions ++= {
       if (tlIsScala3.value) Nil else Seq("-Ymacro-annotations")
     }
+  )
+
+lazy val docs = project
+  .in(file("modules/docs"))
+  .enablePlugins(MdocPlugin, NoPublishPlugin)
+  .dependsOn(metrics.jvm, trace.jvm)
+  .settings(
+    mdocIn  := file("docs/index.md"),
+    mdocOut := file("README.md"),
+    mdocVariables := Map(
+      "VERSION" -> tlLatestVersion.value.getOrElse(version.value),
+    ),
+    scalacOptions += "-Ymacro-annotations",
+    tlFatalWarnings := false,
+    libraryDependencies ++= Seq(
+      "org.typelevel" %% "otel4s-oteljava" % Versions.Otel4s
+    )
   )
 
 lazy val scalaReflectDependency = Def.settings(

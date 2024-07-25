@@ -82,6 +82,10 @@ jobs:
         if: matrix.java == 'temurin@8' && matrix.os == 'ubuntu-latest'
         run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc
 
+      - name: Verify docs
+        if: matrix.project == 'rootJVM' && matrix.scala == '2.13'
+        run: sbt 'project ${{ matrix.project }}' '++ ${{ matrix.scala }}' doc docs/mdoc
+
       - name: Make target directories
         if: github.event_name != 'pull_request' && (startsWith(github.ref, 'refs/tags/v') || github.ref == 'refs/heads/main')
         run: mkdir -p modules/trace/.jvm/target modules/trace/.js/target modules/metrics/jvm/target modules/trace/.native/target project/target
@@ -239,5 +243,5 @@ jobs:
       - name: Submit Dependencies
         uses: scalacenter/sbt-dependency-submission@v2
         with:
-          modules-ignore: otel4s-experimental_2.13 otel4s-experimental_3 otel4s-experimental_2.13 otel4s-experimental_3 otel4s-experimental_2.13 otel4s-experimental_3
+          modules-ignore: otel4s-experimental_2.13 otel4s-experimental_3 docs_2.13 docs_3 otel4s-experimental_2.13 otel4s-experimental_3 otel4s-experimental_2.13 otel4s-experimental_3
           configs-ignore: test scala-tool scala-doc-tool test-internal
