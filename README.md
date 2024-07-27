@@ -17,7 +17,7 @@
 Add the `otel4s-experimental-metrics` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "otel4s-experimental-metrics" % "0.2.0"
+  "org.typelevel" %% "otel4s-experimental-metrics" % "0.3.0"
 )
 ```
 
@@ -54,7 +54,6 @@ The provided metrics:
 - `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
 - `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
 
-
 Example:
 ```scala
 import cats.effect.{IO, IOApp}
@@ -83,7 +82,7 @@ object Main extends IOApp.Simple {
 Add the `otel4s-experimental-trace` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %%% "otel4s-experimental-trace" % "0.2.0"
+  "org.typelevel" %%% "otel4s-experimental-trace" % "0.3.0"
 )
 ```
 
