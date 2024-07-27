@@ -39,17 +39,19 @@ lazy val root = tlCrossRootProject
   .settings(name := "otel4s-experimental")
   .aggregate(metrics, trace, examples)
 
-lazy val metrics = crossProject(JVMPlatform)
+lazy val metrics = crossProject(JVMPlatform, JSPlatform, NativePlatform)
   .crossType(CrossType.Full)
   .in(file("modules/metrics"))
   .settings(munitDependencies)
   .settings(
-    name        := "otel4s-experimental-metrics",
-    Test / fork := true,
+    name := "otel4s-experimental-metrics",
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
       "org.typelevel" %%% "otel4s-sdk-metrics-testkit" % Versions.Otel4s % Test
     )
+  )
+  .jvmSettings(
+    Test / fork := true
   )
 
 lazy val trace = crossProject(JVMPlatform, JSPlatform, NativePlatform)

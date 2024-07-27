@@ -23,6 +23,10 @@ libraryDependencies ++= Seq(
 
 ### 1) `IOMetrics` - cats-effect runtime metrics
 
+> [!IMPORTANT]
+> `IOMetrics` instrumentation is available only on JVM platform.
+
+Example:
 ```scala mdoc:silent
 import cats.effect.{IO, IOApp}
 import org.typelevel.otel4s.experimental.metrics._
@@ -41,6 +45,37 @@ object Main extends IOApp.Simple {
 ```
 
 The metrics can be visualized in Grafana using this [dashboard][grafana-ce-dashboard].
+
+### 2) `InstrumentedQueue` - the instrumentation for `cats.effect.std.Queue`
+
+The provided metrics:
+- `cats.effect.std.queue.size` - the current number of the elements in the queue
+- `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
+- `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
+- `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
+
+Example:
+```scala
+import cats.effect.{IO, IOApp}
+import cats.effect.std.Queue
+import org.typelevel.otel4s.{Attribute, Attributes}
+import org.typelevel.otel4s.experimental.metrics._
+import org.typelevel.otel4s.oteljava.OtelJava
+
+object Main extends IOApp.Simple {
+
+  def run: IO[Unit] =
+    OtelJava.autoConfigured[IO]().use { otel4s =>
+      otel4s.meterProvider.get("service.meter").flatMap { implicit meter =>
+        val attributes = Attributes(Attribute("queue.name", "auth events"))
+        for {
+          queue <- InstrumentedQueue.unbounded[IO, String](attributes = attributes)
+          // use the instrumented queue
+        } yield ()
+      }
+    }
+}
+```
 
 ## Trace - getting started
 
