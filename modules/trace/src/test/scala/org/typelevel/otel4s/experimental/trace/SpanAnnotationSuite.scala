@@ -22,19 +22,17 @@ import cats.effect.Resource
 import munit.CatsEffectSuite
 import org.typelevel.otel4s.Attribute
 import org.typelevel.otel4s.AttributeKey
+import org.typelevel.otel4s.Attributes
 import org.typelevel.otel4s.context.propagation.TextMapGetter
 import org.typelevel.otel4s.context.propagation.TextMapUpdater
+import org.typelevel.otel4s.meta.InstrumentMeta
 import org.typelevel.otel4s.trace.Span
 import org.typelevel.otel4s.trace.SpanBuilder
 import org.typelevel.otel4s.trace.SpanContext
-import org.typelevel.otel4s.trace.SpanFinalizer.Strategy
-import org.typelevel.otel4s.trace.SpanKind
 import org.typelevel.otel4s.trace.SpanOps
 import org.typelevel.otel4s.trace.Tracer
 
-import scala.collection.immutable
 import scala.collection.mutable
-import scala.concurrent.duration.FiniteDuration
 
 @experimental3
 class SpanAnnotationSuite extends CatsEffectSuite {
@@ -47,10 +45,12 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("SpanAnnotationSuite.captureAttributes"),
-      BuilderOp.AddAttributes(
-        Seq(
-          Attribute("name", userName),
-          Attribute("attempts", attempts)
+      BuilderOp.ModifyState(
+        SpanBuilder.State.init.addAttributes(
+          Attributes(
+            Attribute("name", userName),
+            Attribute("attempts", attempts)
+          )
         )
       ),
       BuilderOp.Build
@@ -74,7 +74,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("SpanAnnotationSuite.methodName"),
-      BuilderOp.AddAttributes(Nil),
+      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -100,7 +100,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("SpanAnnotationSuite.$anon.find"),
-      BuilderOp.AddAttributes(Nil),
+      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -121,7 +121,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("Service.deriveNameDef"),
-      BuilderOp.AddAttributes(Nil),
+      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -140,11 +140,13 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("custom_span_name"),
-      BuilderOp.AddAttributes(
-        Seq(
-          Attribute("user.name", userName),
-          Attribute("score", score),
-          Attribute("user.new", isNew)
+      BuilderOp.ModifyState(
+        SpanBuilder.State.init.addAttributes(
+          Attributes(
+            Attribute("user.name", userName),
+            Attribute("score", score),
+            Attribute("user.new", isNew)
+          )
         )
       ),
       BuilderOp.Build
@@ -161,7 +163,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("Service.deriveNameVal"),
-      BuilderOp.AddAttributes(Nil),
+      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -176,7 +178,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("some_custom_name"),
-      BuilderOp.AddAttributes(Nil),
+      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -223,50 +225,27 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
   private object BuilderOp {
     case class Init(name: String) extends BuilderOp
-
-    case class AddAttribute(attribute: Attribute[_]) extends BuilderOp
-
-    case class AddAttributes(
-        attributes: immutable.Iterable[Attribute[_]]
-    ) extends BuilderOp
-
+    case class ModifyState(state: SpanBuilder.State) extends BuilderOp
     case object Build extends BuilderOp
   }
 
   private case class InMemoryBuilder[F[_]: Applicative](
       name: String
   ) extends SpanBuilder[F] {
+    private var _state: SpanBuilder.State = SpanBuilder.State.init
     private val _ops: mutable.ArrayBuffer[BuilderOp] = new mutable.ArrayBuffer
     _ops.addOne(BuilderOp.Init(name))
 
     def ops: Vector[BuilderOp] = _ops.toVector
 
-    def addAttribute[A](attribute: Attribute[A]): SpanBuilder[F] = {
-      _ops.addOne(BuilderOp.AddAttribute(attribute))
+    def meta: InstrumentMeta[F] = InstrumentMeta.enabled
+
+    def modifyState(f: SpanBuilder.State => SpanBuilder.State): SpanBuilder[F] = {
+      val next = f(_state)
+      _state = next
+      _ops.addOne(BuilderOp.ModifyState(next))
       this
     }
-
-    def addAttributes(
-        attributes: immutable.Iterable[Attribute[_]]
-    ): SpanBuilder[F] = {
-      _ops.addOne(BuilderOp.AddAttributes(attributes))
-      this
-    }
-
-    def addLink(
-        spanContext: SpanContext,
-        attributes: immutable.Iterable[Attribute[_]]
-    ): SpanBuilder[F] = ???
-
-    def withFinalizationStrategy(strategy: Strategy): SpanBuilder[F] = ???
-
-    def withSpanKind(spanKind: SpanKind): SpanBuilder[F] = ???
-
-    def withStartTimestamp(timestamp: FiniteDuration): SpanBuilder[F] = ???
-
-    def root: SpanBuilder[F] = ???
-
-    def withParent(parent: SpanContext): SpanBuilder[F] = ???
 
     def build: SpanOps[F] =
       new SpanOps[F] {
@@ -283,7 +262,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
     private val _builders: mutable.ArrayBuffer[InMemoryBuilder[F]] =
       new mutable.ArrayBuffer
 
-    def meta: Tracer.Meta[F] = Tracer.Meta.enabled
+    def meta: InstrumentMeta[F] = InstrumentMeta.enabled
     def currentSpanContext: F[Option[SpanContext]] = ???
     def currentSpanOrNoop: F[Span[F]] = ???
     def currentSpanOrThrow: F[Span[F]] = ???

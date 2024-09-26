@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion    := "0.3"
+ThisBuild / tlBaseVersion    := "0.4"
 ThisBuild / organization     := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / licenses         := Seq(License.Apache2)
@@ -7,7 +7,7 @@ ThisBuild / startYear        := Some(2024)
 // publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
 ThisBuild / tlSonatypeUseLegacyHost := false
 
-// the project does not not provide any binary guarantees
+// the project does not provide any binary guarantees
 ThisBuild / tlMimaPreviousVersions := Set.empty
 
 ThisBuild / developers := List(
@@ -26,7 +26,7 @@ ThisBuild / githubWorkflowBuildPostamble ++= Seq(
 val Versions = new {
   val Scala213        = "2.13.14"
   val Scala3          = "3.3.3"
-  val Otel4s          = "0.8.1"
+  val Otel4s          = "0.10.0"
   val Munit           = "1.0.0"
   val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
   val MUnitCatsEffect = "2.0.0"
