@@ -29,8 +29,15 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         scala: [2.13, 3]
-        java: [temurin@8]
+        java: [temurin@8, semeru@21]
         project: [rootJS, rootJVM, rootNative]
+        exclude:
+          - scala: 3
+            java: semeru@21
+          - project: rootJS
+            java: semeru@21
+          - project: rootNative
+            java: semeru@21
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     steps:
@@ -50,6 +57,19 @@ jobs:
 
       - name: sbt update
         if: matrix.java == 'temurin@8' && steps.setup-java-temurin-8.outputs.cache-hit == 'false'
+        run: sbt +update
+
+      - name: Setup Java (semeru@21)
+        id: setup-java-semeru-21
+        if: matrix.java == 'semeru@21'
+        uses: actions/setup-java@v4
+        with:
+          distribution: semeru
+          java-version: 21
+          cache: sbt
+
+      - name: sbt update
+        if: matrix.java == 'semeru@21' && steps.setup-java-semeru-21.outputs.cache-hit == 'false'
         run: sbt +update
 
       - name: Check that workflows are up to date
@@ -127,6 +147,19 @@ jobs:
 
       - name: sbt update
         if: matrix.java == 'temurin@8' && steps.setup-java-temurin-8.outputs.cache-hit == 'false'
+        run: sbt +update
+
+      - name: Setup Java (semeru@21)
+        id: setup-java-semeru-21
+        if: matrix.java == 'semeru@21'
+        uses: actions/setup-java@v4
+        with:
+          distribution: semeru
+          java-version: 21
+          cache: sbt
+
+      - name: sbt update
+        if: matrix.java == 'semeru@21' && steps.setup-java-semeru-21.outputs.cache-hit == 'false'
         run: sbt +update
 
       - name: Download target directories (2.13, rootJS)
@@ -238,6 +271,19 @@ jobs:
 
       - name: sbt update
         if: matrix.java == 'temurin@8' && steps.setup-java-temurin-8.outputs.cache-hit == 'false'
+        run: sbt +update
+
+      - name: Setup Java (semeru@21)
+        id: setup-java-semeru-21
+        if: matrix.java == 'semeru@21'
+        uses: actions/setup-java@v4
+        with:
+          distribution: semeru
+          java-version: 21
+          cache: sbt
+
+      - name: sbt update
+        if: matrix.java == 'semeru@21' && steps.setup-java-semeru-21.outputs.cache-hit == 'false'
         run: sbt +update
 
       - name: Submit Dependencies

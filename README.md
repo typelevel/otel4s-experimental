@@ -77,6 +77,46 @@ object Main extends IOApp.Simple {
 }
 ```
 
+### 3) `RuntimeMetrics` - the instrumentation for JVM
+
+The provided metrics:
+- Class
+    - `jvm.class.count`
+    - `jvm.class.loaded`
+    - `jvm.class.unloaded`
+- CPU
+    - `jvm.cpu.count`
+    - `jvm.cpu.recent_utilization`
+    - `jvm.cpu.time`
+- GC
+    - `jvm.gc.duration`
+- Memory
+    - `jvm.memory.committed`
+    - `jvm.memory.limit`
+    - `jvm.memory.used`
+    - `jvm.memory.used_after_last_gc`
+- Thread
+    - `jvm.thread.count`
+
+Example:
+```scala
+import cats.effect.{IO, IOApp}
+import org.typelevel.otel4s.experimental.metrics._
+import org.typelevel.otel4s.sdk._
+
+object Main extends IOApp.Simple {
+  def app: IO[Unit] = ???
+  
+  def run: IO[Unit] =
+    OpenTelemetrySdk.autoConfigured[IO]().use { autoConfigured =>
+      val sdk = autoConfigured.sdk
+      sdk.meterProvider.get("service.meter").flatMap { implicit meter =>
+        RuntimeMetrics.register[IO].surround(app)
+      }
+    }
+}
+```
+
 ## Trace - getting started
 
 Add the `otel4s-experimental-trace` dependency to the `build.sbt`:
@@ -90,6 +130,7 @@ libraryDependencies ++= Seq(
 
 The body of a method annotated with `@span` will be wrapped into a span:
 ```scala
+import cats.effect.IO
 import org.typelevel.otel4s.trace.Tracer
 import org.typelevel.otel4s.experimental.trace.{attribute, span}
 
