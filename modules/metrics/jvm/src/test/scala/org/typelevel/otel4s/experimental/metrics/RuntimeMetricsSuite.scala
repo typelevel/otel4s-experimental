@@ -25,6 +25,8 @@ import org.typelevel.otel4s.semconv.MetricSpec
 import org.typelevel.otel4s.semconv.Requirement
 import org.typelevel.otel4s.semconv.metrics.JvmMetrics
 
+import scala.concurrent.duration._
+
 class RuntimeMetricsSuite extends CatsEffectSuite {
 
   test("specification check") {
@@ -55,6 +57,7 @@ class RuntimeMetricsSuite extends CatsEffectSuite {
         RuntimeMetrics.register[IO].surround {
           for {
             _ <- IO.delay(System.gc())
+            _ <- IO.sleep(500.millis)
             metrics <- testkit.collectMetrics
           } yield specs.foreach(spec => specTest(metrics, spec))
         }
