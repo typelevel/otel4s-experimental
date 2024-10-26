@@ -23,10 +23,17 @@ ThisBuild / githubWorkflowBuildPostamble ++= Seq(
   )
 )
 
+ThisBuild / githubWorkflowJavaVersions := Seq(
+  JavaSpec.temurin("8"),
+  JavaSpec.semeru("21")
+)
+
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+
 val Versions = new {
-  val Scala213        = "2.13.14"
+  val Scala213        = "2.13.15"
   val Scala3          = "3.3.3"
-  val Otel4s          = "0.10.0"
+  val Otel4s          = "0.11-7d84643-SNAPSHOT"
   val Munit           = "1.0.0"
   val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
   val MUnitCatsEffect = "2.0.0"
@@ -51,7 +58,11 @@ lazy val metrics = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     )
   )
   .jvmSettings(
-    Test / fork := true
+    Test / fork := true,
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "otel4s-semconv-metrics"              % Versions.Otel4s,
+      "org.typelevel" %%% "otel4s-semconv-metrics-experimental" % Versions.Otel4s % Test,
+    )
   )
 
 lazy val trace = crossProject(JVMPlatform, JSPlatform, NativePlatform)
@@ -98,7 +109,8 @@ lazy val docs = project
     scalacOptions += "-Ymacro-annotations",
     tlFatalWarnings := false,
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "otel4s-oteljava" % Versions.Otel4s
+      "org.typelevel" %% "otel4s-oteljava" % Versions.Otel4s,
+      "org.typelevel" %% "otel4s-sdk"      % Versions.Otel4s
     )
   )
 
