@@ -74,7 +74,6 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("SpanAnnotationSuite.methodName"),
-      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -100,7 +99,6 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("SpanAnnotationSuite.$anon.find"),
-      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -121,7 +119,6 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("Service.deriveNameDef"),
-      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -163,7 +160,6 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("Service.deriveNameVal"),
-      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
@@ -178,7 +174,6 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     val expected = Vector(
       BuilderOp.Init("some_custom_name"),
-      BuilderOp.ModifyState(SpanBuilder.State.init),
       BuilderOp.Build
     )
 
