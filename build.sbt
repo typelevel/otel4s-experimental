@@ -28,12 +28,10 @@ ThisBuild / githubWorkflowJavaVersions := Seq(
   JavaSpec.semeru("21")
 )
 
-ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
-
 val Versions = new {
   val Scala213        = "2.13.15"
   val Scala3          = "3.3.3"
-  val Otel4s          = "0.11-8e1f500-SNAPSHOT"
+  val Otel4s          = "0.11.0"
   val Munit           = "1.0.0"
   val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
   val MUnitCatsEffect = "2.0.0"
