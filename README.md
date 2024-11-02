@@ -17,7 +17,7 @@
 Add the `otel4s-experimental-metrics` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "otel4s-experimental-metrics" % "0.4.0"
+  "org.typelevel" %% "otel4s-experimental-metrics" % "0.5.0"
 )
 ```
 
@@ -122,7 +122,7 @@ object Main extends IOApp.Simple {
 Add the `otel4s-experimental-trace` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %%% "otel4s-experimental-trace" % "0.4.0"
+  "org.typelevel" %%% "otel4s-experimental-trace" % "0.5.0"
 )
 ```
 
