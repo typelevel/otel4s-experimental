@@ -3,8 +3,8 @@
 ![Typelevel Organization Project](https://img.shields.io/badge/typelevel-organization%20project-FF6169.svg)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13)
 
-> [!WARNING]  
-> The `otel4s-experimental` project provides **no binary compatibility guarantees** between releases.  
+> [!WARNING]
+> The `otel4s-experimental` project provides **no binary compatibility guarantees** between releases.
 > Changes made in this repository may be **completely** incompatible with previous versions.
 
 `otel4s-experimental` is a companion project for the [otel4s][otel4s]. The key points of the repository:
@@ -21,32 +21,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-### 1) `IOMetrics` - cats-effect runtime metrics
-
-> [!IMPORTANT]
-> `IOMetrics` instrumentation is available only on JVM platform.
-
-Example:
-```scala
-import cats.effect.{IO, IOApp}
-import org.typelevel.otel4s.experimental.metrics._
-import org.typelevel.otel4s.oteljava.OtelJava
-
-object Main extends IOApp.Simple {
-  def app: IO[Unit] = ???
-
-  def run: IO[Unit] =
-    OtelJava.autoConfigured[IO]().use { otel4s =>
-      otel4s.meterProvider.get("service.meter").flatMap { implicit meter =>
-        IOMetrics.register[IO]().surround(app)
-      }
-    }
-}
-```
-
-The metrics can be visualized in Grafana using this [dashboard][grafana-ce-dashboard].
-
-### 2) `InstrumentedQueue` - the instrumentation for `cats.effect.std.Queue`
+### 1) `InstrumentedQueue` - the instrumentation for `cats.effect.std.Queue`
 
 The provided metrics:
 - `cats.effect.std.queue.size` - the current number of the elements in the queue
@@ -77,7 +52,7 @@ object Main extends IOApp.Simple {
 }
 ```
 
-### 3) `RuntimeMetrics` - the instrumentation for JVM
+### 2) `RuntimeMetrics` - the instrumentation for JVM
 
 The provided metrics:
 - Class
@@ -106,7 +81,7 @@ import org.typelevel.otel4s.sdk._
 
 object Main extends IOApp.Simple {
   def app: IO[Unit] = ???
-  
+
   def run: IO[Unit] =
     OpenTelemetrySdk.autoConfigured[IO]().use { autoConfigured =>
       val sdk = autoConfigured.sdk
@@ -168,7 +143,7 @@ val strictUser: IO[User] = ???
 ```
 expands into:
 ```scala
-val strictUser: IO[User] = 
+val strictUser: IO[User] =
   Tracer[IO].span("custom_name").surround(???)
 ```
 
