@@ -17,7 +17,7 @@
 import cats.effect.IO
 import cats.effect.IOApp
 import cats.effect.std.Random
-import org.typelevel.otel4s.experimental.metrics.IOMetrics
+import org.typelevel.otel4s.experimental.metrics.RuntimeMetrics
 import org.typelevel.otel4s.sdk.OpenTelemetrySdk
 import org.typelevel.otel4s.sdk.exporter.otlp.autoconfigure.OtlpExportersAutoConfigure
 
@@ -28,7 +28,7 @@ object Main extends IOApp.Simple {
       .autoConfigured[IO](_.addExportersConfigurer(OtlpExportersAutoConfigure[IO]))
       .use { otel4s =>
         otel4s.sdk.meterProvider.get("service").flatMap { implicit meter =>
-          IOMetrics.register[IO]().surround(compute.useForever)
+          RuntimeMetrics.register[IO].surround(compute.useForever)
         }
       }
 
