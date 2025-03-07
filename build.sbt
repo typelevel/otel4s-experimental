@@ -4,9 +4,6 @@ ThisBuild / organizationName := "Typelevel"
 ThisBuild / licenses         := Seq(License.Apache2)
 ThisBuild / startYear        := Some(2024)
 
-// publish to s01.oss.sonatype.org (set to true to publish to oss.sonatype.org instead)
-ThisBuild / sonatypeCredentialHost := xerial.sbt.Sonatype.sonatypeLegacy
-
 // the project does not provide any binary guarantees
 ThisBuild / tlMimaPreviousVersions := Set.empty
 
