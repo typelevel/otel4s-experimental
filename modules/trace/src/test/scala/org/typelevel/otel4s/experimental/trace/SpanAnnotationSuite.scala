@@ -233,7 +233,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
     def ops: Vector[BuilderOp] = _ops.toVector
 
-    def meta: InstrumentMeta[F] = InstrumentMeta.enabled
+    def meta: InstrumentMeta.Dynamic[F] = InstrumentMeta.Dynamic.enabled
 
     def modifyState(f: SpanBuilder.State => SpanBuilder.State): SpanBuilder[F] = {
       val next = f(_state)
@@ -257,7 +257,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
     private val _builders: mutable.ArrayBuffer[InMemoryBuilder[F]] =
       new mutable.ArrayBuffer
 
-    def meta: InstrumentMeta[F] = InstrumentMeta.enabled
+    def meta: InstrumentMeta.Dynamic[F] = InstrumentMeta.Dynamic.enabled
     def currentSpanContext: F[Option[SpanContext]] = ???
     def currentSpanOrNoop: F[Span[F]] = ???
     def currentSpanOrThrow: F[Span[F]] = ???
