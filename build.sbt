@@ -27,7 +27,7 @@ ThisBuild / githubWorkflowJavaVersions := Seq(
 
 val Versions = new {
   val Scala213        = "2.13.16"
-  val Scala3          = "3.3.5"
+  val Scala3          = "3.3.6"
   val Otel4s          = "0.13.0"
   val Munit           = "1.0.0"
   val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
