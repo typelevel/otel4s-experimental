@@ -31,7 +31,7 @@ val Versions = new {
   val Otel4s          = "0.13.0"
   val Munit           = "1.0.0"
   val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
-  val MUnitCatsEffect = "2.0.0"
+  val MUnitCatsEffect = "2.1.0"
 }
 
 ThisBuild / crossScalaVersions := Seq(Versions.Scala213, Versions.Scala3)
