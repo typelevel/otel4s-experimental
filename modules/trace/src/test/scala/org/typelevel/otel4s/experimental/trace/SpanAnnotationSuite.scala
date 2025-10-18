@@ -25,12 +25,12 @@ import org.typelevel.otel4s.AttributeKey
 import org.typelevel.otel4s.Attributes
 import org.typelevel.otel4s.context.propagation.TextMapGetter
 import org.typelevel.otel4s.context.propagation.TextMapUpdater
-import org.typelevel.otel4s.meta.InstrumentMeta
 import org.typelevel.otel4s.trace.Span
 import org.typelevel.otel4s.trace.SpanBuilder
 import org.typelevel.otel4s.trace.SpanContext
 import org.typelevel.otel4s.trace.SpanOps
 import org.typelevel.otel4s.trace.Tracer
+import org.typelevel.otel4s.trace.meta.InstrumentMeta
 
 import scala.collection.mutable
 
@@ -226,14 +226,14 @@ class SpanAnnotationSuite extends CatsEffectSuite {
 
   private case class InMemoryBuilder[F[_]: Applicative](
       name: String
-  ) extends SpanBuilder[F] {
+  ) extends SpanBuilder.Unsealed[F] {
     private var _state: SpanBuilder.State = SpanBuilder.State.init
     private val _ops: mutable.ArrayBuffer[BuilderOp] = new mutable.ArrayBuffer
     _ops.addOne(BuilderOp.Init(name))
 
     def ops: Vector[BuilderOp] = _ops.toVector
 
-    def meta: InstrumentMeta.Dynamic[F] = InstrumentMeta.Dynamic.enabled
+    def meta: InstrumentMeta[F] = InstrumentMeta.enabled
 
     def modifyState(f: SpanBuilder.State => SpanBuilder.State): SpanBuilder[F] = {
       val next = f(_state)
@@ -243,7 +243,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
     }
 
     def build: SpanOps[F] =
-      new SpanOps[F] {
+      new SpanOps.Unsealed[F] {
         _ops.addOne(BuilderOp.Build)
         def startUnmanaged: F[Span[F]] = ???
         def resource: Resource[F, SpanOps.Res[F]] = ???
@@ -253,11 +253,11 @@ class SpanAnnotationSuite extends CatsEffectSuite {
       }
   }
 
-  private class InMemoryTracer[F[_]: Applicative] extends Tracer[F] {
+  private class InMemoryTracer[F[_]: Applicative] extends Tracer.Unsealed[F] {
     private val _builders: mutable.ArrayBuffer[InMemoryBuilder[F]] =
       new mutable.ArrayBuffer
 
-    def meta: InstrumentMeta.Dynamic[F] = InstrumentMeta.Dynamic.enabled
+    def meta: InstrumentMeta[F] = InstrumentMeta.enabled
     def currentSpanContext: F[Option[SpanContext]] = ???
     def currentSpanOrNoop: F[Span[F]] = ???
     def currentSpanOrThrow: F[Span[F]] = ???
