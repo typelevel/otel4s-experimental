@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion    := "0.7"
+ThisBuild / tlBaseVersion    := "0.8"
 ThisBuild / organization     := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / licenses         := Seq(License.Apache2)
@@ -28,7 +28,7 @@ ThisBuild / githubWorkflowJavaVersions := Seq(
 val Versions = new {
   val Scala213        = "2.13.16"
   val Scala3          = "3.3.5"
-  val Otel4s          = "0.13.2"
+  val Otel4s          = "0.14.0"
   val Munit           = "1.0.0"
   val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
   val MUnitCatsEffect = "2.1.0"
