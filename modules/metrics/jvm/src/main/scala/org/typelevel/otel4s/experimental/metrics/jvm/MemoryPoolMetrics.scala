@@ -59,7 +59,7 @@ object MemoryPoolMetrics {
       }
     }
 
-  private def record[F[_]: Monad](
+  private def record[F[_]: Sync](
       measurement: ObservableMeasurement[F, Long],
       beans: List[MemoryPoolMXBean],
       focusUsage: MemoryPoolMXBean => MemoryUsage,
@@ -76,18 +76,20 @@ object MemoryPoolMetrics {
         JvmAttributes.JvmMemoryType(memoryType.value)
       )
 
-      // could be null in some cases
-      Option(focusUsage(bean)) match {
-        case Some(usage) =>
-          val value = focusValue(usage)
-          if (value != -1L) {
-            measurement.record(value, attributes)
-          } else {
-            Monad[F].unit
-          }
+      Sync[F].delay(focusUsage(bean)).flatMap { usage =>
+        // could be null in some cases
+        Option(usage) match {
+          case Some(usage) =>
+            val value = focusValue(usage)
+            if (value != -1L) {
+              measurement.record(value, attributes)
+            } else {
+              Monad[F].unit
+            }
 
-        case None =>
-          Monad[F].unit
+          case None =>
+            Monad[F].unit
+        }
       }
     }
 
