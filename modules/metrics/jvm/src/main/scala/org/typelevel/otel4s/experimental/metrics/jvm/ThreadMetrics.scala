@@ -47,7 +47,7 @@ object ThreadMetrics {
       bean <- Sync[F].delay(ManagementFactory.getThreadMXBean).toResource
       threadInfoHandleOpt <- Sync[F].delay(java9ThreadInfoHandle).toResource
       _ <- JvmMetrics.ThreadCount.createWithCallback[F, Long](
-        threadInfoHandleOpt.fold(java8[F](bean))(handle => java9(bean, handle))
+        threadInfoHandleOpt.fold(java8[F](bean)(_))(handle => java9(bean, handle))
       )
     } yield ()
 
