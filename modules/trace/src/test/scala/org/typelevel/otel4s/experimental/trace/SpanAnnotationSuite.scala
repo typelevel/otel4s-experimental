@@ -261,6 +261,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
     def currentSpanContext: F[Option[SpanContext]] = ???
     def currentSpanOrNoop: F[Span[F]] = ???
     def currentSpanOrThrow: F[Span[F]] = ???
+    def withCurrentSpanOrNoop[A](f: Span[F] => F[A]): F[A] = ???
     def childScope[A](parent: SpanContext)(fa: F[A]): F[A] = ???
     def joinOrRoot[A, C: TextMapGetter](carrier: C)(fa: F[A]): F[A] = ???
     def rootScope[A](fa: F[A]): F[A] = ???
