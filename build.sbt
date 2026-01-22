@@ -26,7 +26,7 @@ ThisBuild / githubWorkflowJavaVersions := Seq(
 )
 
 val Versions = new {
-  val Scala213        = "2.13.18"
+  val Scala213        = "3.8.1"
   val Scala3          = "3.3.5"
   val Otel4s          = "0.15.0"
   val Otel4sSdk       = "0.16.0"
