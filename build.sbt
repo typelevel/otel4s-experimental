@@ -97,8 +97,8 @@ lazy val docs = project
   .enablePlugins(MdocPlugin, NoPublishPlugin)
   .dependsOn(metrics.jvm, trace.jvm)
   .settings(
-    mdocIn  := file("docs/index.md"),
-    mdocOut := file("README.md"),
+    mdocIn        := file("docs/index.md"),
+    mdocOut       := file("README.md"),
     mdocVariables := Map(
       "VERSION" -> tlLatestVersion.value.getOrElse(version.value),
     ),
