@@ -1,7 +1,7 @@
 # otel4s-experimental
 
 ![Typelevel Organization Project](https://img.shields.io/badge/typelevel-organization%20project-FF6169.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13)
+[![otel4s-experimental-metrics Scala version support](https://index.scala-lang.org/typelevel/otel4s-experimental/otel4s-experimental-metrics/latest.svg)](https://index.scala-lang.org/typelevel/otel4s-experimental/otel4s-experimental-metrics)
 
 > [!WARNING]
 > The `otel4s-experimental` project provides **no binary compatibility guarantees** between releases.
