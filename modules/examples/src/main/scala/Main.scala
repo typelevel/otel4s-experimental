@@ -21,6 +21,7 @@ import org.typelevel.otel4s.experimental.metrics.RuntimeMetrics
 import org.typelevel.otel4s.sdk.OpenTelemetrySdk
 import org.typelevel.otel4s.sdk.exporter.otlp.autoconfigure.OtlpExportersAutoConfigure
 
+@annotation.nowarn("cat=deprecation")
 object Main extends IOApp.Simple {
 
   def run: IO[Unit] =

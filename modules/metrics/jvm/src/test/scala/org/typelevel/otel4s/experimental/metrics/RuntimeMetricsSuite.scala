@@ -27,6 +27,7 @@ import org.typelevel.otel4s.semconv.metrics.JvmMetrics
 
 import scala.concurrent.duration._
 
+@annotation.nowarn("cat=deprecation")
 class RuntimeMetricsSuite extends CatsEffectSuite {
 
   test("specification check") {
