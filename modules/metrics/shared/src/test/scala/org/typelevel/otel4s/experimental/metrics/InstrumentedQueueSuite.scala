@@ -325,7 +325,7 @@ class InstrumentedQueueSuite extends CatsEffectSuite {
               sys.error("long expected")
           }
 
-        case _: MetricPoints.Histogram =>
+        case _ =>
           sys.error("gauge or sum expected")
       }
 

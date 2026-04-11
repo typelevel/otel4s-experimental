@@ -54,6 +54,10 @@ object Main extends IOApp.Simple {
 
 ### 2) `RuntimeMetrics` - the instrumentation for JVM
 
+> [!WARNING]
+> This module is deprecated and will be removed in the next major release.
+> Please use the [otel4s-sdk-contrib-metrics](https://typelevel.org/otel4s-sdk/instrumentation/metrics-runtime.html) module instead.
+
 The provided metrics:
 - Class
     - `jvm.class.count`

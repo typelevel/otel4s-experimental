@@ -43,6 +43,7 @@ object RuntimeMetrics {
     *   - Thread
     *     - `jvm.thread.count`
     */
+  @deprecated("Use `RuntimeMetrics` from the `otel4s-sdk-contrib-metrics` module instead", "0.10.0")
   def register[F[_]: Async: Meter: Console]: Resource[F, Unit] =
     for {
       _ <- ClassMetrics.register
