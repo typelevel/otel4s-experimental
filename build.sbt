@@ -31,7 +31,7 @@ val Versions = new {
   val Otel4s          = "0.16.0"
   val Otel4sSdk       = "0.18.0"
   val Munit           = "1.3.0"
-  val MUnitScalaCheck = "1.2.0"
+  val MUnitScalaCheck = "1.3.0"
   val MUnitCatsEffect = "2.2.0"
 }
 
