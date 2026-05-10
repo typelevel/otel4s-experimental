@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion    := "0.8"
+ThisBuild / tlBaseVersion    := "0.11"
 ThisBuild / organization     := "org.typelevel"
 ThisBuild / organizationName := "Typelevel"
 ThisBuild / licenses         := Seq(License.Apache2)
@@ -28,10 +28,11 @@ ThisBuild / githubWorkflowJavaVersions := Seq(
 val Versions = new {
   val Scala213        = "2.13.18"
   val Scala3          = "3.3.5"
-  val Otel4s          = "0.14.0"
-  val Munit           = "1.0.0"
-  val MUnitScalaCheck = "1.0.0-M11" // we aren't ready for Scala Native 0.5.x
-  val MUnitCatsEffect = "2.1.0"
+  val Otel4s          = "1.0.0"
+  val Otel4sSdk       = "0.19.0"
+  val Munit           = "1.3.0"
+  val MUnitScalaCheck = "1.3.0"
+  val MUnitCatsEffect = "2.2.0"
 }
 
 ThisBuild / crossScalaVersions := Seq(Versions.Scala213, Versions.Scala3)
@@ -49,7 +50,7 @@ lazy val metrics = crossProject(JVMPlatform, JSPlatform, NativePlatform)
     name := "otel4s-experimental-metrics",
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "otel4s-core-metrics"        % Versions.Otel4s,
-      "org.typelevel" %%% "otel4s-sdk-metrics-testkit" % Versions.Otel4s % Test
+      "org.typelevel" %%% "otel4s-sdk-metrics-testkit" % Versions.Otel4sSdk % Test
     )
   )
   .jvmSettings(
@@ -80,8 +81,8 @@ lazy val examples = project
   .enablePlugins(NoPublishPlugin)
   .settings(
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "otel4s-sdk"          % Versions.Otel4s,
-      "org.typelevel" %%% "otel4s-sdk-exporter" % Versions.Otel4s
+      "org.typelevel" %%% "otel4s-sdk"          % Versions.Otel4sSdk,
+      "org.typelevel" %%% "otel4s-sdk-exporter" % Versions.Otel4sSdk
     ),
     javaOptions += "-Dotel.service.name=ce-runtime",
     javaOptions += "-Dotel.exporter.otlp.protocol=http/protobuf",
@@ -96,8 +97,8 @@ lazy val docs = project
   .enablePlugins(MdocPlugin, NoPublishPlugin)
   .dependsOn(metrics.jvm, trace.jvm)
   .settings(
-    mdocIn  := file("docs/index.md"),
-    mdocOut := file("README.md"),
+    mdocIn        := file("docs/index.md"),
+    mdocOut       := file("README.md"),
     mdocVariables := Map(
       "VERSION" -> tlLatestVersion.value.getOrElse(version.value),
     ),
@@ -105,7 +106,7 @@ lazy val docs = project
     tlFatalWarnings := false,
     libraryDependencies ++= Seq(
       "org.typelevel" %% "otel4s-oteljava" % Versions.Otel4s,
-      "org.typelevel" %% "otel4s-sdk"      % Versions.Otel4s
+      "org.typelevel" %% "otel4s-sdk"      % Versions.Otel4sSdk
     )
   )
 

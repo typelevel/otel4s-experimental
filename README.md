@@ -1,7 +1,7 @@
 # otel4s-experimental
 
 ![Typelevel Organization Project](https://img.shields.io/badge/typelevel-organization%20project-FF6169.svg)
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.typelevel/otel4s-experimental-metrics_2.13)
+[![otel4s-experimental-metrics Scala version support](https://index.scala-lang.org/typelevel/otel4s-experimental/otel4s-experimental-metrics/latest.svg)](https://index.scala-lang.org/typelevel/otel4s-experimental/otel4s-experimental-metrics)
 
 > [!WARNING]
 > The `otel4s-experimental` project provides **no binary compatibility guarantees** between releases.
@@ -12,92 +12,12 @@
 * Provide access to the unstable functionality without breaking the `otel4s`
 * Some features may be upstreamed to the `otel4s` eventually
 
-## Metrics - getting started
-
-Add the `otel4s-experimental-metrics` dependency to the `build.sbt`:
-```scala
-libraryDependencies ++= Seq(
-  "org.typelevel" %% "otel4s-experimental-metrics" % "0.5.0"
-)
-```
-
-### 1) `InstrumentedQueue` - the instrumentation for `cats.effect.std.Queue`
-
-The provided metrics:
-- `cats.effect.std.queue.size` - the current number of the elements in the queue
-- `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
-- `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
-- `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
-
-Example:
-```scala
-import cats.effect.{IO, IOApp}
-import cats.effect.std.Queue
-import org.typelevel.otel4s.{Attribute, Attributes}
-import org.typelevel.otel4s.experimental.metrics._
-import org.typelevel.otel4s.oteljava.OtelJava
-
-object Main extends IOApp.Simple {
-
-  def run: IO[Unit] =
-    OtelJava.autoConfigured[IO]().use { otel4s =>
-      otel4s.meterProvider.get("service.meter").flatMap { implicit meter =>
-        val attributes = Attributes(Attribute("queue.name", "auth events"))
-        for {
-          queue <- InstrumentedQueue.unbounded[IO, String](attributes = attributes)
-          // use the instrumented queue
-        } yield ()
-      }
-    }
-}
-```
-
-### 2) `RuntimeMetrics` - the instrumentation for JVM
-
-The provided metrics:
-- Class
-    - `jvm.class.count`
-    - `jvm.class.loaded`
-    - `jvm.class.unloaded`
-- CPU
-    - `jvm.cpu.count`
-    - `jvm.cpu.recent_utilization`
-    - `jvm.cpu.time`
-- GC
-    - `jvm.gc.duration`
-- Memory
-    - `jvm.memory.committed`
-    - `jvm.memory.limit`
-    - `jvm.memory.used`
-    - `jvm.memory.used_after_last_gc`
-- Thread
-    - `jvm.thread.count`
-
-Example:
-```scala
-import cats.effect.{IO, IOApp}
-import org.typelevel.otel4s.experimental.metrics._
-import org.typelevel.otel4s.sdk._
-
-object Main extends IOApp.Simple {
-  def app: IO[Unit] = ???
-
-  def run: IO[Unit] =
-    OpenTelemetrySdk.autoConfigured[IO]().use { autoConfigured =>
-      val sdk = autoConfigured.sdk
-      sdk.meterProvider.get("service.meter").flatMap { implicit meter =>
-        RuntimeMetrics.register[IO].surround(app)
-      }
-    }
-}
-```
-
 ## Trace - getting started
 
 Add the `otel4s-experimental-trace` dependency to the `build.sbt`:
 ```scala
 libraryDependencies ++= Seq(
-  "org.typelevel" %%% "otel4s-experimental-trace" % "0.5.0"
+  "org.typelevel" %%% "otel4s-experimental-trace" % "0.10.0"
 )
 ```
 
@@ -145,6 +65,49 @@ expands into:
 ```scala
 val strictUser: IO[User] =
   Tracer[IO].span("custom_name").surround(???)
+```
+
+## Metrics - getting started
+
+Add the `otel4s-experimental-metrics` dependency to the `build.sbt`:
+```scala
+libraryDependencies ++= Seq(
+  "org.typelevel" %% "otel4s-experimental-metrics" % "0.10.0"
+)
+```
+
+### 1) `InstrumentedQueue` - the instrumentation for `cats.effect.std.Queue`
+
+> [!WARNING]
+> These reported metrics might be incorrect; refrain from using them in production.
+
+The provided metrics:
+- `cats.effect.std.queue.size` - the current number of the elements in the queue
+- `cats.effect.std.queue.enqueued` - the total (lifetime) number of enqueued elements
+- `cats.effect.std.queue.offer.blocked` - the current number of the 'blocked' offerers
+- `cats.effect.std.queue.take.blocked`- the current number of the 'blocked' takers
+
+Example:
+```scala
+import cats.effect.{IO, IOApp}
+import cats.effect.std.Queue
+import org.typelevel.otel4s.{Attribute, Attributes}
+import org.typelevel.otel4s.experimental.metrics._
+import org.typelevel.otel4s.oteljava.OtelJava
+
+object Main extends IOApp.Simple {
+
+  def run: IO[Unit] =
+    OtelJava.autoConfigured[IO]().use { otel4s =>
+      otel4s.meterProvider.get("service.meter").flatMap { implicit meter =>
+        val attributes = Attributes(Attribute("queue.name", "auth events"))
+        for {
+          queue <- InstrumentedQueue.unbounded[IO, String](attributes = attributes)
+          // use the instrumented queue
+        } yield ()
+      }
+    }
+}
 ```
 
 [otel4s]: https://github.com/typelevel/otel4s

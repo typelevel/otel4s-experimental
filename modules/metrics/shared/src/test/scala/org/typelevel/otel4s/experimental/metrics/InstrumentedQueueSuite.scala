@@ -29,6 +29,7 @@ import org.typelevel.otel4s.sdk.testkit.metrics.MetricsTestkit
 
 import scala.concurrent.duration._
 
+@annotation.nowarn("cat=deprecation")
 class InstrumentedQueueSuite extends CatsEffectSuite {
 
   test("record offered and taken elements") {
@@ -325,7 +326,7 @@ class InstrumentedQueueSuite extends CatsEffectSuite {
               sys.error("long expected")
           }
 
-        case _: MetricPoints.Histogram =>
+        case _ =>
           sys.error("gauge or sum expected")
       }
 
