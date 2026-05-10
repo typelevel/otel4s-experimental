@@ -43,6 +43,7 @@ object InstrumentedQueue {
     * @param attributes
     *   the additional attributes to add to the metrics
     */
+  @deprecated("InstrumentedQueue metrics might be incorrect", "0.11.0")
   def unbounded[F[_]: Concurrent: Meter, A](
       prefix: String = "cats.effect.std.queue",
       attributes: Attributes = Attributes.empty
@@ -68,6 +69,7 @@ object InstrumentedQueue {
     * @param attributes
     *   the additional attributes to add to the metrics
     */
+  @deprecated("InstrumentedQueue metrics might be incorrect", "0.11.0")
   def bounded[F[_]: Concurrent: Meter, A](
       capacity: Int,
       prefix: String = "cats.effect.std.queue",
@@ -97,6 +99,7 @@ object InstrumentedQueue {
     * @param attributes
     *   the additional attributes to add to the metrics
     */
+  @deprecated("InstrumentedQueue metrics might be incorrect", "0.11.0")
   def dropping[F[_]: Concurrent: Meter, A](
       capacity: Int,
       prefix: String = "cats.effect.std.queue",
@@ -126,6 +129,7 @@ object InstrumentedQueue {
     * @param attributes
     *   the additional attributes to add to the metrics
     */
+  @deprecated("InstrumentedQueue metrics might be incorrect", "0.11.0")
   def circularBuffer[F[_]: Concurrent: Meter, A](
       capacity: Int,
       prefix: String = "cats.effect.std.queue",
@@ -152,6 +156,7 @@ object InstrumentedQueue {
     * @param attributes
     *   the additional attributes to add to the metrics
     */
+  @deprecated("InstrumentedQueue metrics might be incorrect", "0.11.0")
   def synchronous[F[_]: Concurrent: Meter, A](
       prefix: String = "cats.effect.std.queue",
       attributes: Attributes = Attributes.empty
@@ -193,6 +198,7 @@ object InstrumentedQueue {
     * @param queue
     *   the queue to instrument
     */
+  @deprecated("InstrumentedQueue metrics might be incorrect", "0.11.0")
   def instrument[F[_]: MonadCancelThrow: Meter, A](
       queue: Queue[F, A],
       prefix: String = "cats.effect.std.queue",

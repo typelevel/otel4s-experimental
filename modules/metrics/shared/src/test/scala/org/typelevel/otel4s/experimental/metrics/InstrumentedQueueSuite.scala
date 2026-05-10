@@ -29,6 +29,7 @@ import org.typelevel.otel4s.sdk.testkit.metrics.MetricsTestkit
 
 import scala.concurrent.duration._
 
+@annotation.nowarn("cat=deprecation")
 class InstrumentedQueueSuite extends CatsEffectSuite {
 
   test("record offered and taken elements") {
