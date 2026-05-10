@@ -62,7 +62,7 @@ class SpanAnnotationSuite extends CatsEffectSuite {
         score: Long,
         @attribute attempts: Seq[Long]
     ): IO[Unit] =
-      IO.pure(name).void
+      IO.pure((name, score, attempts)).void
 
     for {
       _ <- captureAttributes(userName, 1L, attempts)
