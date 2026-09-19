@@ -32,7 +32,7 @@ val Versions = new {
   val Otel4sSdk       = "0.19.0"
   val Munit           = "1.3.3"
   val MUnitScalaCheck = "1.3.0"
-  val MUnitCatsEffect = "2.2.0"
+  val MUnitCatsEffect = "2.2.1"
 }
 
 ThisBuild / crossScalaVersions := Seq(Versions.Scala213, Versions.Scala3)
